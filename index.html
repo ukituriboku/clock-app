@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アナログ時計 - Windows 11</title>
+  <style>
+    /* Windows 11 Fluent Design スタイル（完全オフライン・外部依存なし） */
+    :root {
+      --bg-color: #0f141c;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text-main: #f1f5f9;
+      --text-sub: #94a3b8;
+      --accent-color: #0078d4; /* Windows 11 Signature Blue */
+      --accent-hover: #106ebe;
+      --bezel-outer-1: #1e293b;
+      --bezel-outer-2: #0f172a;
+      --dial-bg: #0b111e;
+      --dial-grad: radial-gradient(circle, #162032 0%, #0b111e 100%);
+      --marker-color: #e2e8f0;
+      --marker-sub: #64748b;
+      --numeral-color: #f8fafc;
+      --hand-hour: #f8fafc;
+      --hand-minute: #cbd5e1;
+      --hand-second: #38bdf8;
+      --center-pin: #38bdf8;
+      --shadow-color: rgba(0, 0, 0, 0.6);
+    }
+
+    /* ライトテーマ */
+    [data-theme="light"] {
+      --bg-color: #f3f3f3;
+      --card-bg: rgba(255, 255, 255, 0.75);
+      --card-border: rgba(0, 0, 0, 0.1);
+      --text-main: #1e293b;
+      --text-sub: #64748b;
+      --accent-color: #0067b8;
+      --accent-hover: #005da6;
+      --bezel-outer-1: #e2e8f0;
+      --bezel-outer-2: #cbd5e1;
+      --dial-bg: #ffffff;
+      --dial-grad: radial-gradient(circle, #ffffff 0%, #f1f5f9 100%);
+      --marker-color: #0f172a;
+      --marker-sub: #94a3b8;
+      --numeral-color: #0f172a;
+      --hand-hour: #1e293b;
+      --hand-minute: #334155;
+      --hand-second: #e11d48;
+      --center-pin: #e11d48;
+      --shadow-color: rgba(0, 0, 0, 0.15);
+    }
+
+    /* クラシックゴールドテーマ */
+    [data-theme="gold"] {
+      --bg-color: #0c0a09;
+      --card-bg: rgba(28, 25, 23, 0.8);
+      --card-border: rgba(217, 119, 6, 0.25);
+      --text-main: #fef3c7;
+      --text-sub: #d97706;
+      --accent-color: #d97706;
+      --accent-hover: #b45309;
+      --bezel-outer-1: #451a03;
+      --bezel-outer-2: #1c1917;
+      --dial-bg: #141210;
+      --dial-grad: radial-gradient(circle, #24201c 0%, #100e0d 100%);
+      --marker-color: #fbbf24;
+      --marker-sub: #92400e;
+      --numeral-color: #fef3c7;
+      --hand-hour: #fef3c7;
+      --hand-minute: #fde68a;
+      --hand-second: #fbbf24;
+      --center-pin: #fbbf24;
+      --shadow-color: rgba(0, 0, 0, 0.7);
+    }
+
+    /* ミニマルバウハウス */
+    [data-theme="minimal"] {
+      --bg-color: #18181b;
+      --card-bg: rgba(39, 39, 42, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #fafafa;
+      --text-sub: #a1a1aa;
+      --accent-color: #f97316;
+      --accent-hover: #ea580c;
+      --bezel-outer-1: #27272a;
+      --bezel-outer-2: #18181b;
+      --dial-bg: #202023;
+      --dial-grad: radial-gradient(circle, #242427 0%, #1a1a1d 100%);
+      --marker-color: #fafafa;
+      --marker-sub: #52525b;
+      --numeral-color: #fafafa;
+      --hand-hour: #ffffff;
+      --hand-minute: #d4d4d8;
+      --hand-second: #f97316;
+      --center-pin: #f97316;
+      --shadow-color: rgba(0, 0, 0, 0.5);
+    }
+
+    /* OLEDブラック */
+    [data-theme="oled"] {
+      --bg-color: #000000;
+      --card-bg: rgba(18, 18, 18, 0.85);
+      --card-border: rgba(255, 255, 255, 0.15);
+      --text-main: #ffffff;
+      --text-sub: #71717a;
+      --accent-color: #10b981;
+      --accent-hover: #059669;
+      --bezel-outer-1: #18181b;
+      --bezel-outer-2: #09090b;
+      --dial-bg: #000000;
+      --dial-grad: radial-gradient(circle, #09090b 0%, #000000 100%);
+      --marker-color: #ffffff;
+      --marker-sub: #3f3f46;
+      --numeral-color: #ffffff;
+      --hand-hour: #ffffff;
+      --hand-minute: #e4e4e7;
+      --hand-second: #10b981;
+      --center-pin: #10b981;
+      --shadow-color: rgba(0, 0, 0, 0.9);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Segoe UI Variable Display', 'Segoe UI', 'BIZ UDPGothic', 'Meiryo', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      position: relative;
+    }
+
+    #clock-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100vw;
+      height: 100vh;
+      padding: 24px;
+    }
+
+    canvas {
+      display: block;
+      touch-action: none;
+      filter: drop-shadow(0 16px 36px var(--shadow-color));
+      transition: filter 0.3s ease;
+    }
+
+    .toolbar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--card-border);
+      border-radius: 9999px;
+      padding: 6px 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      z-index: 100;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .toolbar.hidden-ui {
+      opacity: 0;
+      transform: translateX(-50%) translateY(40px);
+      pointer-events: none;
+    }
+
+    .btn {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid transparent;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn.active {
+      background: var(--accent-color);
+      color: #ffffff;
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .separator {
+      width: 1px;
+      height: 18px;
+      background: var(--card-border);
+      margin: 0 2px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-dialog {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 520px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      color: var(--text-main);
+      transform: scale(0.95);
+      transition: transform 0.25s ease;
+    }
+
+    .modal-backdrop.open .modal-dialog {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      display: flex;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+    }
+
+    .modal-body {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text-sub);
+    }
+
+    .modal-body strong {
+      color: var(--text-main);
+    }
+
+    .shortcut-list {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px 16px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+    }
+
+    .shortcut-key {
+      display: inline-block;
+      padding: 2px 7px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--text-main);
+      text-align: center;
+      min-width: 24px;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 16px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 90;
+      transition: opacity 0.3s ease;
+    }
+
+    .top-bar.hidden-ui {
+      opacity: 0;
+    }
+
+    .brand-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      background: rgba(0, 120, 212, 0.2);
+      border: 1px solid rgba(0, 120, 212, 0.4);
+      color: #38bdf8;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .zen-hint {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: var(--text-sub);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 12px;
+      border-radius: 16px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .zen-hint.visible {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <div class="top-bar" id="topBar">
+    <div class="brand-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      <span>Windows 11 アナログ時計</span>
+      <span class="badge">オフライン動作</span>
+    </div>
+  </div>
+
+  <div id="clock-wrapper">
+    <canvas id="clockCanvas"></canvas>
+  </div>
+
+  <div class="zen-hint" id="zenHint">画面をクリックまたは [Space] でコントロールを表示</div>
+
+  <div class="toolbar" id="toolbar">
+    <button class="btn" id="btnMovement" title="秒針の動きを切替 (スムーズ / 1秒刻み)">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+      </svg>
+      <span id="movementLabel">スムーズ</span>
+    </button>
+
+    <button class="btn" id="btnTheme" title="テーマを変更 (Windows 11 ダーク / ライト / ゴールド / ミニマル / OLED)">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+      </svg>
+      <span id="themeLabel">ダーク</span>
+    </button>
+
+    <div class="separator"></div>
+
+    <button class="btn active" id="btnDigital" title="デジタル時刻・日付の表示/非表示">
+      <svg viewBox="0 0 24 24">
+        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+        <line x1="6" y1="12" x2="10" y2="12"></line>
+        <line x1="14" y1="12" x2="18" y2="12"></line>
+      </svg>
+      <span>情報表示</span>
+    </button>
+
+    <button class="btn" id="btnSound" title="秒針音（Web Audio APIによる合成音）">
+      <svg viewBox="0 0 24 24" id="soundIcon">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <line x1="23" y1="9" x2="17" y2="15"></line>
+        <line x1="17" y1="9" x2="23" y2="15"></line>
+      </svg>
+      <span id="soundLabel">消音</span>
+    </button>
+
+    <div class="separator"></div>
+
+    <button class="btn" id="btnFullscreen" title="全画面表示 (F11)">
+      <svg viewBox="0 0 24 24">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+      </svg>
+    </button>
+
+    <button class="btn" id="btnZen" title="UI非表示（画面のみ）">
+      <svg viewBox="0 0 24 24">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+      </svg>
+    </button>
+
+    <button class="btn" id="btnHelp" title="使い方とショートカット">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="modal-backdrop" id="helpModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Windows 11 アナログ時計について
+        </div>
+        <button class="modal-close" id="modalCloseBtn" aria-label="閉じる">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>この時計は外部ライブラリ・画像・フォントを一切使用せず、<strong>HTML5 Canvasと純粋なJavaScript/CSSのみ</strong>で作成された完全独立型の単一ファイル（<code>analog-clock.html</code>）です。</p>
+        <p style="margin-top: 8px;">インターネット接続がないオフライン環境でも、Windows 11の <strong>Microsoft Edge、Google Chrome、Brave</strong> でファイルをダブルクリックするだけで軽快に動作します。</p>
+
+        <div class="shortcut-list">
+          <div><span class="shortcut-key">Space</span></div>
+          <div>UIツールバーの表示 / 非表示（集中モード）</div>
+          <div><span class="shortcut-key">F</span></div>
+          <div>全画面（フルスクリーン）切り替え</div>
+          <div><span class="shortcut-key">T</span></div>
+          <div>カラーテーマ切り替え</div>
+          <div><span class="shortcut-key">M</span></div>
+          <div>秒針の動き（スムーズ / 1秒刻みステップ）</div>
+          <div><span class="shortcut-key">S</span></div>
+          <div>秒針チクタク音のオン / オフ（Web Audio合成音）</div>
+          <div><span class="shortcut-key">D</span></div>
+          <div>日付・デジタル時刻サブダイヤルの表示切り替え</div>
+          <div><span class="shortcut-key">Esc</span></div>
+          <div>モーダルを閉じる / 全画面終了</div>
+        </div>
+
+        <p style="margin-top: 14px; font-size: 12px; color: var(--text-sub);">
+          ※ Windows 11の高DPIディスプレイ（125%, 150%, 200%拡大設定）に対応し、拡大縮小してもにじみのないクリアな描画を行います。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+
+      const state = {
+        smoothMovement: true,
+        themeIndex: 0,
+        showDigital: true,
+        soundEnabled: false,
+        zenMode: false
+      };
+
+      const themes = [
+        { id: 'dark', label: 'ダーク' },
+        { id: 'light', label: 'ライト' },
+        { id: 'gold', label: 'ゴールド' },
+        { id: 'minimal', label: 'ミニマル' },
+        { id: 'oled', label: 'OLED' }
+      ];
+
+      const canvas = document.getElementById('clockCanvas');
+      const ctx = canvas.getContext('2d');
+      const wrapper = document.getElementById('clock-wrapper');
+      const toolbar = document.getElementById('toolbar');
+      const topBar = document.getElementById('topBar');
+      const zenHint = document.getElementById('zenHint');
+
+      const btnMovement = document.getElementById('btnMovement');
+      const movementLabel = document.getElementById('movementLabel');
+      const btnTheme = document.getElementById('btnTheme');
+      const themeLabel = document.getElementById('themeLabel');
+      const btnDigital = document.getElementById('btnDigital');
+      const btnSound = document.getElementById('btnSound');
+      const soundLabel = document.getElementById('soundLabel');
+      const soundIcon = document.getElementById('soundIcon');
+      const btnFullscreen = document.getElementById('btnFullscreen');
+      const btnZen = document.getElementById('btnZen');
+      const btnHelp = document.getElementById('btnHelp');
+      const helpModal = document.getElementById('helpModal');
+      const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+      let audioCtx = null;
+      let lastSecond = -1;
+
+      function playMechanicalTick(isTock) {
+        if (!state.soundEnabled) return;
+        try {
+          if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return;
+            audioCtx = new AudioContextClass();
+          }
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+
+          const now = audioCtx.currentTime;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          const filter = audioCtx.createBiquadFilter();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(isTock ? 1200 : 1600, now);
+          osc.frequency.exponentialRampToValueAtTime(100, now + 0.025);
+
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(isTock ? 1800 : 2200, now);
+          filter.Q.setValueAtTime(8, now);
+
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.035);
+        } catch (e) {}
+      }
+
+      let canvasSize = 400;
+      let dpr = window.devicePixelRatio || 1;
+
+      function resizeCanvas() {
+        const rect = wrapper.getBoundingClientRect();
+        const padding = state.zenMode ? 32 : 110;
+        const availableWidth = Math.max(260, rect.width - 48);
+        const availableHeight = Math.max(260, rect.height - padding);
+        canvasSize = Math.min(availableWidth, availableHeight, 820);
+
+        dpr = window.devicePixelRatio || 1;
+        canvas.width = canvasSize * dpr;
+        canvas.height = canvasSize * dpr;
+        canvas.style.width = canvasSize + 'px';
+        canvas.style.height = canvasSize + 'px';
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      function drawClock() {
+        ctx.save();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.scale(dpr, dpr);
+
+        const center = canvasSize / 2;
+        const radius = (canvasSize / 2) * 0.94;
+
+        const style = getComputedStyle(document.body);
+        const bezelOuter1 = style.getPropertyValue('--bezel-outer-1').trim();
+        const bezelOuter2 = style.getPropertyValue('--bezel-outer-2').trim();
+        const dialBg = style.getPropertyValue('--dial-bg').trim();
+        const markerColor = style.getPropertyValue('--marker-color').trim();
+        const markerSub = style.getPropertyValue('--marker-sub').trim();
+        const numeralColor = style.getPropertyValue('--numeral-color').trim();
+        const handHour = style.getPropertyValue('--hand-hour').trim();
+        const handMinute = style.getPropertyValue('--hand-minute').trim();
+        const handSecond = style.getPropertyValue('--hand-second').trim();
+        const centerPin = style.getPropertyValue('--center-pin').trim();
+        const accentColor = style.getPropertyValue('--accent-color').trim();
+
+        // ベゼル
+        const bezelGrad = ctx.createLinearGradient(0, center - radius, 0, center + radius);
+        bezelGrad.addColorStop(0, bezelOuter1);
+        bezelGrad.addColorStop(0.5, bezelOuter2);
+        bezelGrad.addColorStop(1, bezelOuter1);
+
+        ctx.beginPath();
+        ctx.arc(center, center, radius, 0, Math.PI * 2);
+        ctx.fillStyle = bezelGrad;
+        ctx.fill();
+
+        ctx.lineWidth = Math.max(1, radius * 0.015);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+        ctx.stroke();
+
+        // 文字盤ベース
+        const innerRadius = radius * 0.93;
+        const dialGrad = ctx.createRadialGradient(center, center * 0.9, innerRadius * 0.1, center, center, innerRadius);
+        dialGrad.addColorStop(0, '#1a2436');
+        dialGrad.addColorStop(0.7, dialBg);
+        dialGrad.addColorStop(1, '#050810');
+
+        ctx.beginPath();
+        ctx.arc(center, center, innerRadius, 0, Math.PI * 2);
+        if (document.body.getAttribute('data-theme') === 'light') {
+          const lightGrad = ctx.createRadialGradient(center, center * 0.9, innerRadius * 0.1, center, center, innerRadius);
+          lightGrad.addColorStop(0, '#ffffff');
+          lightGrad.addColorStop(0.85, '#f8fafc');
+          lightGrad.addColorStop(1, '#e2e8f0');
+          ctx.fillStyle = lightGrad;
+        } else {
+          ctx.fillStyle = dialGrad;
+        }
+        ctx.fill();
+
+        ctx.lineWidth = Math.max(1, radius * 0.01);
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
+        ctx.stroke();
+
+        // サブダイヤル
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+        const milliseconds = now.getMilliseconds();
+
+        let exactSec = state.smoothMovement ? seconds + milliseconds / 1000 : seconds;
+        let exactMin = minutes + exactSec / 60;
+        let exactHour = (hours % 12) + exactMin / 60;
+
+        if (seconds !== lastSecond) {
+          playMechanicalTick(seconds % 2 === 0);
+          lastSecond = seconds;
+        }
+
+        if (state.showDigital) {
+          ctx.save();
+          const dateY = center - radius * 0.32;
+          const daysJa = ['日', '月', '火', '水', '木', '金', '土'];
+          const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} (${daysJa[now.getDay()]})`;
+
+          ctx.font = `600 ${Math.max(10, radius * 0.065)}px 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif`;
+          ctx.fillStyle = markerSub;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(dateStr, center, dateY);
+
+          const timeY = center + radius * 0.36;
+          const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+          
+          const boxW = radius * 0.44;
+          const boxH = radius * 0.14;
+          ctx.beginPath();
+          ctx.roundRect(center - boxW / 2, timeY - boxH / 2, boxW, boxH, 6);
+          ctx.fillStyle = 'rgba(128, 128, 128, 0.12)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.font = `700 ${Math.max(11, radius * 0.08)}px 'Segoe UI Variable Display', 'Consolas', monospace`;
+          ctx.fillStyle = numeralColor;
+          ctx.fillText(timeStr, center, timeY + 1);
+          ctx.restore();
+        }
+
+        // 目盛り
+        ctx.save();
+        ctx.translate(center, center);
+
+        for (let i = 0; i < 60; i++) {
+          const angle = (i * Math.PI) / 30;
+          const isFiveMinute = i % 5 === 0;
+          const isQuarter = i % 15 === 0;
+
+          ctx.save();
+          ctx.rotate(angle);
+
+          if (isFiveMinute) {
+            const markLength = isQuarter ? radius * 0.11 : radius * 0.085;
+            const markWidth = isQuarter ? Math.max(2.5, radius * 0.02) : Math.max(1.8, radius * 0.014);
+
+            ctx.beginPath();
+            ctx.moveTo(0, -innerRadius + radius * 0.035);
+            ctx.lineTo(0, -innerRadius + radius * 0.035 + markLength);
+            ctx.lineWidth = markWidth;
+            ctx.strokeStyle = isQuarter ? accentColor : markerColor;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+          } else {
+            const markLength = radius * 0.04;
+            ctx.beginPath();
+            ctx.moveTo(0, -innerRadius + radius * 0.045);
+            ctx.lineTo(0, -innerRadius + radius * 0.045 + markLength);
+            ctx.lineWidth = Math.max(1, radius * 0.007);
+            ctx.strokeStyle = markerSub;
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // 数字
+        const numRadius = innerRadius - radius * 0.20;
+        ctx.font = `600 ${Math.max(14, radius * 0.14)}px 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif`;
+        ctx.fillStyle = numeralColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        for (let num = 1; num <= 12; num++) {
+          const angle = (num * Math.PI) / 6;
+          const x = Math.sin(angle) * numRadius;
+          const y = -Math.cos(angle) * numRadius;
+          ctx.fillText(num.toString(), x, y);
+        }
+
+        ctx.restore();
+
+        // 針の描画
+        function drawHand(angle, length, width, color, backLength = 0, isSecond = false) {
+          ctx.save();
+          ctx.translate(center, center);
+          ctx.rotate(angle);
+
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+          ctx.shadowBlur = isSecond ? 6 : 10;
+          ctx.shadowOffsetX = 2;
+          ctx.shadowOffsetY = 4;
+
+          ctx.beginPath();
+          if (isSecond) {
+            ctx.moveTo(0, -length);
+            ctx.lineTo(0, backLength);
+            ctx.lineWidth = width;
+            ctx.strokeStyle = color;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(0, backLength * 0.65, width * 2.2, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+          } else {
+            const halfW = width / 2;
+            const tipW = width * 0.4;
+            ctx.beginPath();
+            ctx.moveTo(-halfW, backLength);
+            ctx.lineTo(-halfW, -length * 0.25);
+            ctx.lineTo(-tipW, -length);
+            ctx.lineTo(0, -length - width);
+            ctx.lineTo(tipW, -length);
+            ctx.lineTo(halfW, -length * 0.25);
+            ctx.lineTo(halfW, backLength);
+            ctx.closePath();
+
+            ctx.fillStyle = color;
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(0, backLength * 0.8);
+            ctx.lineTo(0, -length * 0.95);
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        const hourAngle = (exactHour * Math.PI) / 6;
+        const hourLength = radius * 0.52;
+        const hourWidth = Math.max(4, radius * 0.042);
+        drawHand(hourAngle, hourLength, hourWidth, handHour, radius * 0.08, false);
+
+        const minuteAngle = (exactMin * Math.PI) / 30;
+        const minuteLength = radius * 0.74;
+        const minuteWidth = Math.max(3, radius * 0.028);
+        drawHand(minuteAngle, minuteLength, minuteWidth, handMinute, radius * 0.09, false);
+
+        const secondAngle = (exactSec * Math.PI) / 30;
+        const secondLength = radius * 0.83;
+        const secondWidth = Math.max(1.6, radius * 0.012);
+        drawHand(secondAngle, secondLength, secondWidth, handSecond, radius * 0.18, true);
+
+        // センターキャップ
+        ctx.save();
+        ctx.translate(center, center);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.045, 0, Math.PI * 2);
+        ctx.fillStyle = handHour;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetY = 2;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.022, 0, Math.PI * 2);
+        ctx.fillStyle = centerPin;
+        ctx.fill();
+
+        ctx.restore();
+        ctx.restore();
+      }
+
+      function animate() {
+        drawClock();
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+
+      function toggleMovement() {
+        state.smoothMovement = !state.smoothMovement;
+        movementLabel.textContent = state.smoothMovement ? 'スムーズ' : 'ステップ';
+        btnMovement.classList.toggle('active', state.smoothMovement);
+      }
+      btnMovement.addEventListener('click', toggleMovement);
+
+      function cycleTheme() {
+        state.themeIndex = (state.themeIndex + 1) % themes.length;
+        const current = themes[state.themeIndex];
+        document.body.setAttribute('data-theme', current.id);
+        themeLabel.textContent = current.label;
+      }
+      btnTheme.addEventListener('click', cycleTheme);
+
+      function toggleDigital() {
+        state.showDigital = !state.showDigital;
+        btnDigital.classList.toggle('active', state.showDigital);
+      }
+      btnDigital.addEventListener('click', toggleDigital);
+
+      function toggleSound() {
+        state.soundEnabled = !state.soundEnabled;
+        soundLabel.textContent = state.soundEnabled ? '音: ON' : '消音';
+        btnSound.classList.toggle('active', state.soundEnabled);
+
+        if (state.soundEnabled) {
+          soundIcon.innerHTML = `
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          `;
+          playMechanicalTick(false);
+        } else {
+          soundIcon.innerHTML = `
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          `;
+        }
+      }
+      btnSound.addEventListener('click', toggleSound);
+
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          }
+        }
+      }
+      btnFullscreen.addEventListener('click', toggleFullscreen);
+
+      let zenTimeout = null;
+      function toggleZen() {
+        state.zenMode = !state.zenMode;
+        toolbar.classList.toggle('hidden-ui', state.zenMode);
+        topBar.classList.toggle('hidden-ui', state.zenMode);
+        resizeCanvas();
+
+        if (state.zenMode) {
+          zenHint.classList.add('visible');
+          clearTimeout(zenTimeout);
+          zenTimeout = setTimeout(() => {
+            zenHint.classList.remove('visible');
+          }, 3500);
+        } else {
+          zenHint.classList.remove('visible');
+        }
+      }
+      btnZen.addEventListener('click', toggleZen);
+
+      document.body.addEventListener('click', function() {
+        if (state.zenMode) {
+          toggleZen();
+        }
+      });
+
+      toolbar.addEventListener('click', (e) => e.stopPropagation());
+
+      btnHelp.addEventListener('click', (e) => {
+        e.stopPropagation();
+        helpModal.classList.add('open');
+      });
+
+      modalCloseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        helpModal.classList.remove('open');
+      });
+
+      helpModal.addEventListener('click', (e) => {
+        if (e.target === helpModal) {
+          helpModal.classList.remove('open');
+        }
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.code === 'Space') {
+          e.preventDefault();
+          toggleZen();
+        } else if (e.key === 'f' || e.key === 'F') {
+          toggleFullscreen();
+        } else if (e.key === 't' || e.key === 'T') {
+          cycleTheme();
+        } else if (e.key === 'm' || e.key === 'M') {
+          toggleMovement();
+        } else if (e.key === 's' || e.key === 'S') {
+          toggleSound();
+        } else if (e.key === 'd' || e.key === 'D') {
+          toggleDigital();
+        } else if (e.key === 'Escape') {
+          if (helpModal.classList.contains('open')) {
+            helpModal.classList.remove('open');
+          } else if (state.zenMode) {
+            toggleZen();
+          }
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>
